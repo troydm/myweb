@@ -18,6 +18,7 @@
 ;; myweb.asd
 
 (asdf:defsystem #:myweb
+  :depends-on ("usocket" "bordeaux-threads" "local-time" "cl-log" "trivial-utf-8")
   :serial t
   :components ((:file "package")
 	       (:file "log")
