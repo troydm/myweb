@@ -21,7 +21,7 @@
   (:export :start-http :stop-http :stop-thread :list-workers :list-requests))
 
 (defpackage :myweb.util
-  (:use :cl :local-time)
+  (:use :cl :local-time :trivial-utf-8)
   (:export :parse-request :read-utf-8-string :response-write :get-param :get-header :http-response :file-response :html-template :log-info :log-warning :log-error))
 
 (defpackage :myweb.handler
