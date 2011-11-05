@@ -18,7 +18,7 @@
 
 (defpackage :myweb
   (:use :cl :usocket :bordeaux-threads)
-  (:export :start-http :stop-http :stop-thread :list-workers :list-requests #:*base-directory*))
+  (:export :start-http :stop-http :stop-thread :list-workers :list-requests))
 
 (defpackage :myweb.util
   (:use :cl :local-time :trivial-utf-8)

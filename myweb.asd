@@ -21,7 +21,13 @@
   :depends-on ("usocket" "bordeaux-threads" "local-time" "cl-log" "trivial-utf-8")
   :serial t
   :components ((:file "package")
-	       (:file "log")
                (:file "util")
 	       (:file "web")
+	       (:file "log")
 	       (:file "handler")))
+
+
+(defpackage #:myweb.config (:export #:*base-directory*))
+(defparameter myweb.config:*base-directory*
+  (make-pathname :name nil :type nil :defaults *load-truename*))
+
