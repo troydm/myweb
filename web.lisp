@@ -45,7 +45,7 @@
 	(worker-id 0))
     (loop while *listen-thread* do
 	 (let* ((socket (socket-accept *listen-socket* :element-type '(unsigned-byte 8))))
-	   (progn (setq request-id (1+ request-id))
+	   (progn (incf request-id)
 		  (acquire-lock *worker-mutex*)
 		  (if (>= *worker-num* worker-limit)
 		      (push (cons request-id socket) *request-queue*)
@@ -54,8 +54,8 @@
 			  (progn (push (cons request-id socket) *request-queue*)
 				 (condition-notify (caar *idle-workers*)))
 			  ;; Add new Worker
-			  (progn (setq worker-id (1+ worker-id))
-				 (setq *worker-num* (1+ *worker-num*))
+			  (progn (incf worker-id)
+				 (incf *worker-num*)
 				 (setq *workers* 
 				       (cons 
 					(make-thread
@@ -69,17 +69,9 @@
 		  t)))))
 
 (defun worker-thread (request-id socket idle-workers)
+  ;; Process request if it is not nil
   (if request-id
-      ;; Process request if it is not nil
-      (progn 
-	(with-lock-held (*request-mutex*)
-	  (setq *request-threads* (cons (cons request-id (current-thread)) *request-threads*))
-	  )
-	(http-worker socket)
-	(with-lock-held (*request-mutex*)
-	  (setq *request-threads* (remove-if (lambda (x) (eq (car x) request-id)) *request-threads*))
-	  )
-	))
+      (http-worker request-id socket))
   (acquire-lock *worker-mutex*)
   (if *request-queue*
       (let ((request nil))
@@ -92,7 +84,7 @@
 		(idle-lock (make-lock))
 		(request nil))
 	    (push (cons condition (current-thread)) *idle-workers*)
-	    (setq *idle-workers-num* (1+ *idle-workers-num*))
+	    (incf *idle-workers-num*)
 	    (release-lock *worker-mutex*)
 	    (list-workers)
 	    (with-lock-held (idle-lock)
@@ -100,21 +92,26 @@
 	      )
 	    (with-lock-held (*worker-mutex*)
 	      (setq *idle-workers* (cdr *idle-workers*))
-	      (setq *idle-workers-num* (1- *idle-workers-num*))
+	      (decf *idle-workers-num*)
 	      (setq request (car *request-queue*))	
 	      (setq *request-queue* (cdr *request-queue*))
 	      )
 	    (worker-thread (car request) (cdr request) idle-workers))
 	  (progn (setq *workers* (remove (current-thread) *workers*))
-		 (setq *worker-num* (1- *worker-num*))
+		 (decf *worker-num*)
 		 (release-lock *worker-mutex*)))))
 
-(defun http-worker (socket)
+(defun http-worker (request-id socket)
   (let* ((stream (socket-stream socket))
 	 (request (myweb.util:parse-request stream)))
+    (with-lock-held (*request-mutex*)
+      (push (cons request-id (current-thread)) *request-threads*))	
     (myweb.handler:process-request request stream)
     (finish-output stream)
-    (socket-close socket)))
+    (socket-close socket)
+    (with-lock-held (*request-mutex*)
+      (setq *request-threads* (remove request-id *request-threads* :key 'car)))
+    ))
 
 (defun list-workers ()
   (with-lock-held (*worker-mutex*)
