@@ -63,7 +63,7 @@
 
 (defun file-response (filename type request stream)
   (handler-case
-      (with-open-file (in (concatenate 'string "web/" filename) :element-type '(unsigned-byte 8))
+      (with-open-file (in (merge-pathnames (merge-pathnames filename "web/") myweb:*base-directory*) :element-type '(unsigned-byte 8))
 	(if (equal (get-header "if-modified-since" request) (format-timestring nil (universal-to-timestamp (file-write-date in)) :format +asctime-format+))
 	    (http-response "304 Not Modified" nil stream)
 	(progn 
@@ -83,7 +83,7 @@
 
 (defun html-template (filename type params request stream)
   (handler-case
-      (with-open-file (in (concatenate 'string "web/" filename) :element-type '(unsigned-byte 8))
+      (with-open-file (in (merge-pathnames (merge-pathnames filename "web/") myweb:*base-directory*) :element-type '(unsigned-byte 8))
 	(loop for line = (read-utf-8-string in 10)
 	   while (and line (> (length line) 0))  
 	   do (progn

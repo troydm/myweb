@@ -16,6 +16,9 @@
 
 (in-package :myweb)
 
+(defparameter myweb:*base-directory* 
+  (make-pathname :name nil :type nil :defaults *load-truename*))
+
 (defvar *listen-socket* nil)
 (defvar *listen-thread* nil)
 

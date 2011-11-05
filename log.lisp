@@ -19,7 +19,7 @@
 (setf (log-manager)
           (make-instance 'log-manager :message-class 'formatted-message))
 
-(start-messenger 'text-file-messenger :filename "log/web.log")
+(start-messenger 'text-file-messenger :filename (merge-pathnames #p"log/web.log" myweb:*base-directory*))
 
 (defmethod format-message ((self formatted-message))
   (format nil "~a ~a ~?~&"
