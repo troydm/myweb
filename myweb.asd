@@ -18,6 +18,10 @@
 ;; myweb.asd
 
 (asdf:defsystem #:myweb
+  :description "simple web server written in common lisp for educational reasons"
+  :author "Dmitry Geurkov <d.geurkov@gmail.com>"
+  :maintainer "Dmitry Geurkov <d.geurkov@gmail.com>"
+  :license "LGPLv3"
   :depends-on ("usocket" "bordeaux-threads" "local-time" "cl-log" "trivial-utf-8")
   :serial t
   :components ((:file "package")
