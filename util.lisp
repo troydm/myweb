@@ -38,7 +38,7 @@
     (trivial-utf-8:utf-8-bytes-to-string buffer)))
 
 (defun response-write (text stream)
-  (trivial-utf-8:write-utf-8-bytes text stream))
+  (trivial-utf-8::write-utf-8-bytes text stream))
 
 (defun parse-get-header (header stream)
   (cons "GET" 
